@@ -1,64 +1,68 @@
 # ---------- Line endings & text normalization ----------
-*           text=auto
+*               text=auto
 
 # Enforce LF for source files (ثابت بين الأنظمة)
-*.java      text eol=lf diff=java
-*.kt        text eol=lf
-*.groovy    text eol=lf
-*.xml       text eol=lf
-*.yml       text eol=lf
-*.yaml      text eol=lf
-*.json      text eol=lf
-*.md        text eol=lf
-*.properties text eol=lf
-*.sql       text eol=lf
-*.sh        text eol=lf
-*.gradle    text eol=lf
+*.java          text eol=lf diff=java
+*.kt            text eol=lf
+*.groovy        text eol=lf
+*.xml           text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.json          text eol=lf
+*.md            text eol=lf
+*.properties    text eol=lf
+*.sql           text eol=lf
+*.sh            text eol=lf
+*.gradle        text eol=lf
+*.conf          text eol=lf
+*.ini           text eol=lf
+gradlew         text eol=lf
 
 # Windows scripts keep CRLF
-*.bat       text eol=crlf
-*.cmd       text eol=crlf
-*.ps1       text eol=crlf
+*.bat           text eol=crlf
+*.cmd           text eol=crlf
+*.ps1           text eol=crlf
+gradlew.bat     text eol=crlf
 
 # ---------- Treat binaries as binary (no diff/merge heuristics) ----------
-*.jar       binary
-*.war       binary
-*.ear       binary
-*.zip       binary
-*.gz        binary
-*.7z        binary
-*.tar       binary
-*.png       binary
-*.jpg       binary
-*.jpeg      binary
-*.gif       binary
-*.webp      binary
-*.ico       binary
-*.pdf       binary
-*.ttf       binary
-*.otf       binary
-*.woff      binary
-*.woff2     binary
-*.mp4       binary
-*.mov       binary
-*.mp3       binary
+*.jar           binary
+*.war           binary
+*.ear           binary
+*.zip           binary
+*.gz            binary
+*.7z            binary
+*.tar           binary
+*.png           binary
+*.jpg           binary
+*.jpeg          binary
+*.gif           binary
+*.webp          binary
+*.ico           binary
+*.pdf           binary
+*.ttf           binary
+*.otf           binary
+*.woff          binary
+*.woff2         binary
+*.mp4           binary
+*.mov           binary
+*.mp3           binary
 
 # ---------- GitHub Linguist & generated content ----------
 # Exclude build output and generated sources from language stats / diffs
-target/**                      linguist-generated
-**/generated-sources/**       linguist-generated
-**/src/main/generated/**      linguist-generated
-**/src/generated/**           linguist-generated
+target/**                       linguist-generated
+**/generated-sources/**        linguist-generated
+**/src/main/generated/**       linguist-generated
+**/src/generated/**            linguist-generated
 
 # Ignore diffs for lockfiles if you use them (uncomment if present)
-#pom.xml       -diff
-#build.gradle  -diff
+# pom.xml        -diff
+# build.gradle   -diff
 
 # ---------- Archives/exports (exclude repo meta on source exports) ----------
-/.gitattributes export-ignore
-/.gitignore    export-ignore
-/.github/**    export-ignore
+/.gitattributes  export-ignore
+/.gitignore      export-ignore
+/.github/**      export-ignore
 
-# ---------- Optional: Git LFS (إن كنت تستخدم LFS، فعّل السطر التالي وأنماطك) ----------
+# ---------- Optional: Git LFS ----------
 # *.png filter=lfs diff=lfs merge=lfs -text
 # *.jpg filter=lfs diff=lfs merge=lfs -text
