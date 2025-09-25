@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.observability;
+package io.veggieshop.platform.starter.observability.web.autoconfig;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

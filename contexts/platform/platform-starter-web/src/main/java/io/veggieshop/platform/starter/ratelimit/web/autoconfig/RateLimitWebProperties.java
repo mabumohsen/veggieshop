@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.ratelimit;
+package io.veggieshop.platform.starter.ratelimit.web.autoconfig;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;

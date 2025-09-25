@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.security;
+package io.veggieshop.platform.starter.security.web.autoconfig;
 
 import io.veggieshop.platform.http.filters.HmacAuthFilter;
 import io.veggieshop.platform.http.filters.TenantFilter;

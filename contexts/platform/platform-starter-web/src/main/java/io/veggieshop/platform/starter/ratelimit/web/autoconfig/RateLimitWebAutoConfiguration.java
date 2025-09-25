@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.ratelimit;
+package io.veggieshop.platform.starter.ratelimit.web.autoconfig;
 
 import io.veggieshop.platform.http.filters.RateLimitFilter;
 import jakarta.servlet.DispatcherType;

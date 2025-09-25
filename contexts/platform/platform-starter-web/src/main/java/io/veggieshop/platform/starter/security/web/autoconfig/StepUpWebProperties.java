@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.security;
+package io.veggieshop.platform.starter.security.web.autoconfig;
 
 import jakarta.validation.constraints.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;

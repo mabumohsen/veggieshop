@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.observability;
+package io.veggieshop.platform.starter.observability.web.autoconfig;
 
 import io.veggieshop.platform.http.filters.PiiLogGuardFilter;
 import jakarta.servlet.DispatcherType;

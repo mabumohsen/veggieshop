@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.tenancy;
+package io.veggieshop.platform.starter.tenancy.web.autoconfig;
 
 import io.veggieshop.platform.domain.tenant.TenantResolver;
 import io.veggieshop.platform.http.filters.TenantFilter;

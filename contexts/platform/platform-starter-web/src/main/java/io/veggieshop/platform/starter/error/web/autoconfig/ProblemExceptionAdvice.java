@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.error;
+package io.veggieshop.platform.starter.error.web.autoconfig;
 
 import io.veggieshop.platform.domain.error.ProblemTypes;
 import io.veggieshop.platform.domain.error.VeggieException;

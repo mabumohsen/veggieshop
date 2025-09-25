@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.security;
+package io.veggieshop.platform.starter.security.web.autoconfig;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.source.JWKSource;

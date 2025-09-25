@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.tenancy;
+package io.veggieshop.platform.starter.tenancy.web.autoconfig;
 
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;

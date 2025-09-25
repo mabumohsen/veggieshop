@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.core;
+package io.veggieshop.platform.starter.core.web.autoconfig;
 
 import io.veggieshop.platform.http.filters.CorrelationIdFilter;
 import jakarta.servlet.DispatcherType;

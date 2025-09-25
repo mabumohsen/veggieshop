@@ -1,4 +1,4 @@
-package io.veggieshop.platform.starter.core;
+package io.veggieshop.platform.starter.core.web.autoconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
