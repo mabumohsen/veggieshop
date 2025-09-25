@@ -9,66 +9,26 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
-/**
- * AuditMetadata
- *
- * <p>Enterprise-grade, framework-agnostic audit envelope that captures who/what/when/why for
- * domain mutations and significant reads. It supports cryptographic chaining via {@link AuditHash}
- * ({@code prevHash -> hash}) as specified in VeggieShop PRD v2.0.</p>
- *
- * <h2>Design</h2>
- * <ul>
- *   <li><b>Immutable</b> value object with a builder that performs strict validation.</li>
- *   <li><b>PII-aware:</b> fields are intended to hold <i>non-sensitive</i> identifiers only.
- *       Do not place PII here; use the PII vault for sensitive material and reference by id.</li>
- *   <li><b>Deterministic canonical form</b> for hashing/signatures. See {@link #canonicalBytes()}.</li>
- *   <li><b>Minimal dependencies:</b> plain Java 21; no Spring/Servlet/JSON libs in domain.</li>
- * </ul>
- *
- * <h3>Typical usage</h3>
- * <pre>{@code
- * AuditMetadata meta = AuditMetadata.builder(tenantId, "ORDER_CREATE", "Order", orderId, actorId)
- *     .risk(RiskLevel.MEDIUM)
- *     .roles(EnumSet.of(Roles.BUYER))
- *     .entityVersion(EntityVersion.of(42))
- *     .traceId(traceId)
- *     .prevHash(prev)                 // null for the first record in chain
- *     .reason("checkout.placeOrder")  // stable reason code (non-PII)
- *     .client("veggieshop-api")
- *     .attribute("cartId", cartId)
- *     .buildAndComputeHash();         // computes hash = H(prevHash || canonical(meta))
- * }</pre>
- *
- * <p><b>Note:</b> The canonical payload is a stable, ASCII-only, newline-delimited representation that
- * sorts dynamic collections (roles/attributes) to achieve determinism.</p>
- */
 public final class AuditMetadata {
-
-    /** Versioned schema identifier for the canonical form. */
     public static final String SCHEMA_ID = "veggieshop.audit.meta.v1";
 
-    // Core, required
     private final TenantId tenantId;
-    private final String action;           // e.g., ORDER_CREATE, PRICE_OVERRIDE
-    private final String resourceType;     // e.g., Order, Price, InventoryBatch
-    private final String resourceId;       // stable id (UUID/ULID/natural key)
-    private final String actor;            // subject principal id (user/service)
+    private final String action;
+    private final String resourceType;
+    private final String resourceId;
+    private final String actor;
     private final Instant occurredAt;
 
-    // Optional but common
-    private final EntityVersion entityVersion;  // version of the resource at the time
-    private final EnumSet<Roles> roles;         // coarse-grained roles of the actor
-    private final RiskLevel risk;               // classification of action risk
-    private final String traceId;               // OpenTelemetry trace id (if available)
-    private final String correlationId;         // request/correlation id
-    private final String client;                // service/app origin (e.g., veggieshop-api)
-    private final String reason;                // stable non-PII reason code (e.g., "checkout.placeOrder")
+    private final EntityVersion entityVersion;
+    private final EnumSet<Roles> roles;
+    private final RiskLevel risk;
+    private final String traceId;
+    private final String correlationId;
+    private final String client;
+    private final String reason;
 
-    // Chain
-    private final AuditHash prevHash;           // previous audit record hash in the same chain (may be null for genesis)
-    private final AuditHash hash;               // this record hash (computed over canonical form + prevHash)
-
-    // Extensible, non-sensitive attributes (all keys lower-kebab-case, values ASCII, limits enforced)
+    private final AuditHash prevHash;
+    private final AuditHash hash;
     private final SortedMap<String, String> attributes;
 
     private AuditMetadata(
@@ -96,7 +56,7 @@ public final class AuditMetadata {
         this.actor = requireToken(actor, "actor", 1, 120);
         this.occurredAt = Objects.requireNonNullElse(occurredAt, Instant.now());
 
-        this.entityVersion = entityVersion; // optional
+        this.entityVersion = entityVersion;
         this.roles = roles == null || roles.isEmpty() ? null : EnumSet.copyOf(roles);
         this.risk = Objects.requireNonNullElse(risk, RiskLevel.LOW);
 
@@ -105,28 +65,26 @@ public final class AuditMetadata {
         this.client = optionalCode(client, "client", 0, 80);
         this.reason = optionalCode(reason, "reason", 0, 120);
 
-        this.prevHash = prevHash; // may be null for first record
-        this.hash = hash;         // may be null before compute
+        this.prevHash = prevHash;
+        this.hash = hash;
         this.attributes = attributes == null ? Collections.emptySortedMap() : Collections.unmodifiableSortedMap(attributes);
     }
 
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // Builder
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
     public static Builder builder(TenantId tenantId, String action, String resourceType, String resourceId, String actor) {
         return new Builder(tenantId, action, resourceType, resourceId, actor);
     }
 
     public static final class Builder {
-        // Required
         private final TenantId tenantId;
         private final String action;
         private final String resourceType;
         private final String resourceId;
         private final String actor;
 
-        // Optionals
         private Instant occurredAt;
         private EntityVersion entityVersion;
         private EnumSet<Roles> roles;
@@ -156,10 +114,6 @@ public final class AuditMetadata {
         public Builder reason(String reason) { this.reason = reason; return this; }
         public Builder prevHash(AuditHash prevHash) { this.prevHash = prevHash; return this; }
 
-        /**
-         * Put a non-sensitive attribute. Keys must be lower-kebab-case (e.g., "cart-id").
-         * Values must be ASCII and short. PII is <b>not</b> allowed here.
-         */
         public Builder attribute(String key, String value) {
             String k = requireAttrKey(key);
             String v = requireAttrValue(value);
@@ -167,17 +121,15 @@ public final class AuditMetadata {
             return this;
         }
 
-        /** Build without computing {@link AuditHash}. Prefer {@link #buildAndComputeHash()} for chain completeness. */
         public AuditMetadata build() {
             return new AuditMetadata(
                     tenantId, action, resourceType, resourceId, actor, occurredAt,
                     entityVersion, roles, risk, traceId, correlationId, client, reason,
-                    prevHash, null, // hash omitted
+                    prevHash, null,
                     attributes
             );
         }
 
-        /** Build and compute {@link AuditHash} as H(prevHash || canonical(meta-without-hash)). */
         public AuditMetadata buildAndComputeHash() {
             AuditMetadata tmp = build();
             AuditHash h = AuditHash.computeChained(tmp.prevHash, tmp.canonicalBytes());
@@ -185,11 +137,10 @@ public final class AuditMetadata {
         }
     }
 
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // Domain operations
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
-    /** Return a copy of this metadata with the supplied {@link AuditHash} set. */
     public AuditMetadata withHash(AuditHash h) {
         return new AuditMetadata(
                 tenantId, action, resourceType, resourceId, actor, occurredAt,
@@ -198,35 +149,12 @@ public final class AuditMetadata {
         );
     }
 
-    /** Verify that {@link #hash} equals {@code computeChained(prevHash, canonicalBytes())}. */
     public boolean verifyHash() {
         if (hash == null) return false;
         AuditHash computed = AuditHash.computeChained(prevHash, canonicalBytes());
         return hash.equals(computed);
     }
 
-    /**
-     * Produce a stable, ASCII-only canonical representation suitable for hashing/signing.
-     * <p>Format (one field per line, in the exact order below; empty value denoted by {@code -}):</p>
-     *
-     * <pre>
-     * schema:veggieshop.audit.meta.v1
-     * tenant:{tenantId}
-     * action:{ACTION}
-     * resourceType:{RESOURCE_TYPE}
-     * resourceId:{RESOURCE_ID}
-     * actor:{ACTOR}
-     * occurredAt:{epochMillis}
-     * entityVersion:{version|-}
-     * roles:{role1,role2|-}              // sorted alpha, upper-case enum names
-     * risk:{LOW|MEDIUM|HIGH|CRITICAL}
-     * traceId:{traceId|-}
-     * correlationId:{correlationId|-}
-     * client:{client|-}
-     * reason:{reason|-}
-     * attributes:{k1=v1;k2=v2;...|-}     // sorted by key; semicolon-separated
-     * </pre>
-     */
     public byte[] canonicalBytes() {
         StringBuilder sb = new StringBuilder(512);
         sb.append("schema:").append(SCHEMA_ID).append('\n');
@@ -235,8 +163,9 @@ public final class AuditMetadata {
         sb.append("resourceType:").append(resourceType).append('\n');
         sb.append("resourceId:").append(resourceId).append('\n');
         sb.append("actor:").append(actor).append('\n');
+
         sb.append("occurredAt:").append(occurredAt.toEpochMilli()).append('\n');
-        sb.append("entityVersion:").append(entityVersion != null ? entityVersion.asString() : "-").append('\n');
+        sb.append("entityVersion:").append(entityVersion != null ? String.valueOf(entityVersion.value()) : "-").append('\n'); // replaced asString:contentReference[oaicite:0]{index=0}
 
         if (roles != null && !roles.isEmpty()) {
             List<String> names = new ArrayList<>(roles.size());
@@ -249,6 +178,7 @@ public final class AuditMetadata {
 
         sb.append("risk:").append(risk.name()).append('\n');
         sb.append("traceId:").append(blankToDash(traceId)).append('\n');
+
         sb.append("correlationId:").append(blankToDash(correlationId)).append('\n');
         sb.append("client:").append(blankToDash(client)).append('\n');
         sb.append("reason:").append(blankToDash(reason)).append('\n');
@@ -264,9 +194,9 @@ public final class AuditMetadata {
         return sb.toString().getBytes(StandardCharsets.US_ASCII);
     }
 
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // Getters
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
     public TenantId tenantId() { return tenantId; }
     public String action() { return action; }
@@ -285,9 +215,9 @@ public final class AuditMetadata {
     public Optional<AuditHash> hash() { return Optional.ofNullable(hash); }
     public SortedMap<String, String> attributes() { return attributes; }
 
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // Object overrides (PII-safe)
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
     @Override
     public String toString() {
@@ -298,13 +228,13 @@ public final class AuditMetadata {
                 ", resourceId='" + abbreviate(resourceId, 16) + '\'' +
                 ", actor='" + abbreviate(actor, 16) + '\'' +
                 ", occurredAt=" + occurredAt +
-                ", entityVersion=" + (entityVersion != null ? entityVersion.asString() : "-") +
+                ", entityVersion=" + (entityVersion != null ? entityVersion.value() : "-") + // replaced asString:contentReference[oaicite:1]{index=1}
                 ", risk=" + risk +
                 ", traceId=" + abbreviate(traceId, 16) +
                 ", correlationId=" + abbreviate(correlationId, 16) +
                 ", client=" + abbreviate(client, 16) +
                 ", reason=" + abbreviate(reason, 32) +
-                ", attributes=" + attributes.keySet() +           // keys only (no values) to avoid accidental leakage
+                ", attributes=" + attributes.keySet() +
                 ", prevHash=" + (prevHash != null ? prevHash.toString() : "-") +
                 ", hash=" + (hash != null ? hash.toString() : "-") +
                 '}';
@@ -338,16 +268,15 @@ public final class AuditMetadata {
                 entityVersion, roles, risk, traceId, correlationId, client, reason, prevHash, hash, attributes);
     }
 
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
     // Validation helpers (ASCII, sizes, allowed chars)
-    // -------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------
 
     private static String requireCode(String value, String name, int min, int max) {
         String v = requireNonBlank(value, name);
         if (v.length() < min || v.length() > max) {
             throw new IllegalArgumentException(name + " length must be [" + min + "," + max + "]");
         }
-        // upper snake or dot/kebab allowed; safe ASCII only
         if (!v.matches("[A-Za-z0-9._:-]+")) {
             throw new IllegalArgumentException(name + " must match [A-Za-z0-9._:-]+");
         }
@@ -364,7 +293,6 @@ public final class AuditMetadata {
         if (v.length() < min || v.length() > max) {
             throw new IllegalArgumentException(name + " length must be [" + min + "," + max + "]");
         }
-        // keep token permissive but ASCII: include '-' '_' ':' '.' '@' '/'
         if (!v.matches("[A-Za-z0-9._:@/\\-]+")) {
             throw new IllegalArgumentException(name + " contains illegal characters");
         }
@@ -386,7 +314,6 @@ public final class AuditMetadata {
     private static String requireAttrValue(String value) {
         String v = requireNonBlank(value, "attribute value");
         if (v.length() > 120) throw new IllegalArgumentException("attribute value too long (max 120)");
-        // ASCII only to keep canonical form portable
         for (int i = 0; i < v.length(); i++) {
             if (v.charAt(i) > 0x7F) throw new IllegalArgumentException("attribute value must be ASCII");
         }

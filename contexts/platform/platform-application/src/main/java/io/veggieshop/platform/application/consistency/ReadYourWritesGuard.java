@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * ReadYourWritesGuard
@@ -103,5 +104,10 @@ public final class ReadYourWritesGuard {
             // Exponential-ish backoff up to max
             pollMillis = Math.min(maxPollMillis, pollMillis * 2);
         }
+    }
+
+    public <T> Optional<T> monotonic(Supplier<Optional<T>> read) {
+        boolean ok = awaitIfRequested();
+        return read.get();
     }
 }

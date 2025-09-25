@@ -3,6 +3,7 @@ package io.veggieshop.platform.starter.application.autoconfig;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Tracer;
+import io.veggieshop.platform.application.consistency.ConsistencyProperties;
 import io.veggieshop.platform.application.consistency.ConsistencyService;
 import io.veggieshop.platform.application.consistency.ReadYourWritesGuard;
 import io.veggieshop.platform.application.pii.PiiVaultClient;
@@ -45,9 +46,9 @@ public class PiiVaultAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     ReadYourWritesGuard readYourWritesGuard(ConsistencyService consistency,
-                                            MeterRegistry metrics,
+                                            ConsistencyProperties props,
                                             Clock clock) {
-        return new ReadYourWritesGuard(consistency, metrics, clock);
+        return new ReadYourWritesGuard(consistency, props, clock);
     }
 
     @Bean

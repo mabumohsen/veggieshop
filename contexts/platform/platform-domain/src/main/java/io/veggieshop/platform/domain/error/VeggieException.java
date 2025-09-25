@@ -197,8 +197,8 @@ public final class VeggieException extends RuntimeException implements HasProble
                                                     String resourceType, String resourceId) {
         return VeggieException.builder(ProblemTypes.CONSISTENCY_PRECONDITION_FAILED)
                 .detail("If-Consistent-With does not match current entity version")
-                .extension("expected-version", expected != null ? expected.toIfConsistentWith() : "-")
-                .extension("current-version", actual != null ? actual.toIfConsistentWith() : "-")
+                .extension("expected-version", expected != null ? String.valueOf(expected.value()) : "-")
+                .extension("current-version", actual != null ? String.valueOf(actual.value()) : "-")
                 .extension("resource-type", requireCode(resourceType, "resourceType", 1, 80))
                 .extension("resource-id", safeToken(resourceId, 1, 120))
                 .captureStackTrace(false)
