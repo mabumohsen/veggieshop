@@ -32,25 +32,4 @@ public class StepUpWebAutoConfiguration {
                 .allowHmacPrincipals(p.isAllowHmacPrincipals())
                 .build();
     }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public StepUpInterceptor stepUpInterceptor(
-            StepUpService service,
-            StepUpSettings settings,
-            ObjectProvider<Clock> clock
-    ) {
-        return new StepUpInterceptor(service, settings, clock.getIfAvailable(Clock::systemUTC));
-    }
-
-    @Bean
-    public WebMvcConfigurer stepUpConfigurer(StepUpWebProperties props, StepUpInterceptor interceptor) {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addInterceptors(InterceptorRegistry registry) {
-                int order = (props.getOrder() != null) ? props.getOrder() : StepUpInterceptor.ORDER;
-                registry.addInterceptor(interceptor).order(order);
-            }
-        };
-    }
 }
