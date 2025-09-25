@@ -1,0 +1,15 @@
+veggieshop:
+  pii:
+    vault:
+      active-kid: k1
+      encoding: base64
+      master-keys:
+        k1: "7fZx7lK0m5f8m9qgO1x4F6C0w8B5d3h1Y2p3Z4a5b6c7d8e9f0g="
+      max-payload-bytes: 65536
+      salt-bytes: 16
+      iv-bytes: 12
+      fail-if-missing-key: true
+  stepup:
+    min-elevation-minutes: 15
+    max-elevation-minutes: 60
+    challenge-ttl: 5m

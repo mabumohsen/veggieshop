@@ -1,0 +1,9 @@
+io.veggieshop.platform.starter.web.consistency.ConsistencyWebAutoConfiguration
+io.veggieshop.platform.starter.web.tenancy.TenancyWebAutoConfiguration
+io.veggieshop.platform.starter.web.core.CoreWebAutoConfiguration
+io.veggieshop.platform.starter.web.error.ProblemWebAutoConfiguration
+io.veggieshop.platform.starter.web.observability.PiiLogWebAutoConfiguration
+io.veggieshop.platform.starter.web.ratelimit.RateLimitWebAutoConfiguration
+io.veggieshop.platform.starter.web.security.HmacWebAutoConfiguration
+io.veggieshop.platform.starter.web.security.OidcWebAutoConfiguration
+io.veggieshop.platform.starter.web.security.StepUpWebAutoConfiguration

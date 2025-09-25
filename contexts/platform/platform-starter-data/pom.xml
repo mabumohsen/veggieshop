@@ -1,0 +1,61 @@
+<!--
+  Platform Data Starter
+  - JPA/Flyway sane defaults, timeouts, DB parallelism guards
+  - Imports infra-level autoconfig (DataSourceTimeoutConfig, VirtualDbSemaphore)
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.veggieshop</groupId>
+        <artifactId>parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../../pom-bom/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>platform-starter-data</artifactId>
+    <name>VeggieShop :: Context :: Platform :: Starter :: Data</name>
+    <description>JPA/Flyway defaults, timeouts and DB parallelism guards</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- JPA/Hibernate + Tx management -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+        <!-- Flyway for schema migrations (migrations provided by each context) -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <!-- Infrastructure config: timeouts, virtual DB semaphore, adapters -->
+        <dependency>
+            <groupId>io.veggieshop</groupId>
+            <artifactId>platform-infrastructure</artifactId>
+        </dependency>
+
+        <!-- Boot autoconfigure base -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <!-- Optional: metadata for configuration properties -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

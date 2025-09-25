@@ -1,0 +1,3 @@
+io.veggieshop.platform.starter.data.autoconfig.DbTimeoutsAutoConfiguration
+io.veggieshop.platform.starter.data.autoconfig.DbBulkheadAutoConfiguration
+io.veggieshop.platform.starter.data.autoconfig.VeggiePiiVaultAutoConfiguration

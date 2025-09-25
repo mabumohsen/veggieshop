@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VeggieShop :: Platform API :: Messaging (Enterprise-grade)
+  - Lightweight auto-configuration library for messaging (Kafka + Outbox/Dedupe)
+  - No executable packaging (no spring-boot-maven-plugin)
+  - Keep transitive footprint minimal: rely on spring-boot-autoconfigure + spring-kafka only
+  - Provide configuration metadata at build time via configuration-processor (optional)
+  - Enforce a stable Automatic-Module-Name for JPMS consumers
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.veggieshop</groupId>
+        <artifactId>parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../../pom-bom/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>platform-api-messaging</artifactId>
+    <name>VeggieShop :: Platform API :: Messaging</name>
+    <description>Auto-configuration and building blocks for Kafka messaging (reliable publisher, consumer error handling, outbox drain, dedupe)</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- Core: keep this module framework-light. Autoconfigure pulls spring-context without the heavy web starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <!-- Kafka support (templates, listener containers, etc.) -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <!-- Logging API (tiny and ubiquitous). Kept as compile-time to avoid surprises at runtime -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Generate configuration metadata for IDEs; optional to avoid transitive leakage -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- TEST SCOPE: Keep tests lean; integration tests live in platform-testing -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JDBC / JdbcTemplate -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <!-- Redis: StringRedisTemplate -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Micrometer: MeterRegistry / Tag / Timer -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+        <!-- OpenTelemetry API: Tracer / Span / StatusCode / GlobalOpenTelemetry -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+
+        <!-- Confluent serializers (Avro + Protobuf) -->
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-avro-serializer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-protobuf-serializer</artifactId>
+        </dependency>
+
+        <!-- Protobuf API for com.google.protobuf.Message -->
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Do NOT add spring-boot-maven-plugin here (this is a library, not an executable) -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <!-- Stable JPMS name for downstream consumers -->
+                            <Automatic-Module-Name>io.veggieshop.platform.messaging</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Notes:
+         - Scheduling for OutboxDrainScheduler should be enabled by the consuming app/starter.
+         - Any additional storages/backends (e.g., Redis) must be provided by starters, not this API module.
+    -->
+</project>

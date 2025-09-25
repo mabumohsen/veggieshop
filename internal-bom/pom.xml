@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VeggieShop :: Internal BOM
+  Purpose:
+    - Centralize versions for VeggieShop *internal* artifacts (libraries, starters, testkits)
+    - Keep external libs in the main parent/BOM; this BOM is import-only
+  Notes:
+    - No <parent>, no <modules>, no build plugins → safe to import anywhere
+    - Consumers should use:
+        <dependencyManagement>
+          <dependencies>
+            <dependency>
+              <groupId>io.veggieshop</groupId>
+              <artifactId>internal-bom</artifactId>
+              <version>${revision}</version>
+              <type>pom</type>
+              <scope>import</scope>
+            </dependency>
+          </dependencies>
+        </dependencyManagement>
+    - All comments are in English per PRD guidelines.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.veggieshop</groupId>
+    <artifactId>internal-bom</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <name>VeggieShop :: Internal BOM</name>
+    <description>Importable BOM that aligns versions for VeggieShop internal libraries, starters, and testkits.</description>
+    <url>https://github.com/abuRizq/veggieshop-platform</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>abuRizq</id>
+            <name>abuRizq</name>
+            <email>mabumohsen2@smail.ucas.edu.ps</email>
+            <timezone>+03:00</timezone>
+            <roles>
+                <role>owner</role>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/abuRizq/veggieshop-platform/issues</url>
+    </issueManagement>
+    <scm>
+        <connection>scm:git:https://github.com/abuRizq/veggieshop-platform.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/abuRizq/veggieshop-platform.git</developerConnection>
+        <url>https://github.com/abuRizq/veggieshop-platform</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <!-- ===== Properties ===== -->
+    <properties>
+        <!-- CI-friendly: let CI pass -Drevision; local default below -->
+        <revision>1.0.0-SNAPSHOT</revision>
+
+        <!-- Single knob: all internal artifacts use this version -->
+        <veggieshop.version>${revision}</veggieshop.version>
+
+        <!-- Keep encoding stable for generated POMs -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <!-- ===== Dependency Management (internal artifacts only) ===== -->
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- ===== Platform libraries (shared) ===== -->
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-domain</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-application</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-api-http</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-api-messaging</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-infrastructure</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-starter-observability</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+
+            <!-- ===== Starters (auto-config bundles) ===== -->
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-starter-web</artifactId>
+                <version>${veggieshop.version}</version>
+                <!-- Starters are meant to be added as regular deps; no scope here -->
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-starter-messaging</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-starter-data</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+
+            <!-- ===== Testkits & Benchmarks (consumers set scope as needed) ===== -->
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-testing</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.veggieshop</groupId>
+                <artifactId>platform-benchmarks</artifactId>
+                <version>${veggieshop.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>nl.jqno.equalsverifier</groupId>
+                <artifactId>equalsverifier</artifactId>
+                <version>4.1</version>
+            </dependency>
+
+            <!-- ===== (Optional) Applications (rarely used as deps; listed for completeness) ===== -->
+            <!--
+            <dependency>
+              <groupId>io.veggieshop</groupId>
+              <artifactId>edge-gateway</artifactId>
+              <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.veggieshop</groupId>
+              <artifactId>veggieshop-api</artifactId>
+              <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.veggieshop</groupId>
+              <artifactId>veggieshop-worker</artifactId>
+              <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.veggieshop</groupId>
+              <artifactId>bff-web</artifactId>
+              <version>${veggieshop.version}</version>
+            </dependency>
+            -->
+
+            <!-- ===== (Future) Domain contexts (add here when extracted) ===== -->
+            <!-- Examples:
+            <dependency>
+              <groupId>io.veggieshop</groupId>
+              <artifactId>catalog-domain</artifactId>
+              <version>${veggieshop.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>io.veggieshop</groupId>
+              <artifactId>inventory-domain</artifactId>
+              <version>${veggieshop.version}</version>
+            </dependency>
+            -->
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Keep the BOM lean: no <dependencies>, no <build>, no <profiles> -->
+</project>

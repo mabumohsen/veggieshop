@@ -1,0 +1,130 @@
+veggieshop:
+  web:
+    # -------------------------------------------
+    # Core (behind proxies, correlation, CORS)
+    # -------------------------------------------
+    core:
+      forwarded-enabled: true   # يفعّل ForwardedHeaderFilter للتعامل مع X-Forwarded-* خلف الـ LB/Proxy
+
+    correlation:
+      enabled: true
+      header: X-Correlation-Id
+      generate-if-missing: true
+      generator: ULID          # UUID | ULID | TRACE_ID
+      mdc-key: correlationId
+
+    cors:
+      enabled: false           # لو عندك واجهات عامة، فعّلها وحدّد المسموح
+      allowed-origins: ["https://app.example.com"]
+      allowed-methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"]
+      allowed-headers: ["*"]
+      exposed-headers: ["X-Correlation-Id"]
+      allow-credentials: true
+      max-age: 30m
+
+    # -------------------------------------------
+    # Multi-Tenancy
+    # -------------------------------------------
+    tenancy:
+      header: X-Tenant-Id
+      jwt-claim: tenantId
+      precedence: HEADER_OVER_JWT  # HEADER_OVER_JWT | JWT_OVER_HEADER
+      require: true                # ارفض الطلبات بدون Tenant
+
+    # -------------------------------------------
+    # Consistency (preconditions / ETag helpers)
+    # -------------------------------------------
+    consistency:
+      enabled: true
+      window: 60s
+      add-vary: true
+      if-consistent-with-header: If-Consistent-With
+      etag:
+        strong: true
+
+    # -------------------------------------------
+    # Problem+JSON (RFC7807) mapping
+    # -------------------------------------------
+    problem:
+      enabled: true
+
+    # -------------------------------------------
+    # Observability: PII Log Guard
+    # -------------------------------------------
+    observability:
+      pii-log:
+        enabled: true
+        payload-max-chars: 2000
+        header-denylist:
+          - Authorization
+          - Proxy-Authorization
+          - Cookie
+          - Set-Cookie
+          - X-Api-Key
+          - X-Auth-Token
+        redact-patterns:
+          # بريد إلكتروني
+          - "(?i)[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}"
+          # بطاقات (نمط واسع 13-19 رقمًا)
+          - "\\b(?:\\d[ -]*?){13,19}\\b"
+          # كلمات سر في key=value
+          - "(?i)(password|passwd|pwd)\\s*[:=]\\s*[^&\\s]+"
+
+    # -------------------------------------------
+    # Rate limiting
+    # -------------------------------------------
+    ratelimit:
+      enabled: true
+      headers: true                 # RFC 9239 RateLimit-* headers
+      keys: ["tenant","ip"]         # أمثلة: ip / tenant / header:X-API-Key / path
+      # ملاحظة: سيقوم الفلتر باستخدام policy افتراضية عند غياب default-policy
+      # إن كانت بنية Policy في مشروعك تدعم الحقول التالية (كمثال)، ألغِ التعليق عنها:
+      # default-policy:
+      #   capacity: 100
+      #   refill-permits: 100
+      #   refill-window: 1s
+      #   burst: 50
+      overrides: {}                 # مفاتيح خاصة → سياسات خاصة (اتركها فارغة كبداية)
+
+    # -------------------------------------------
+    # Security: HMAC (للشركاء/التكاملات)
+    # -------------------------------------------
+    hmac:
+      enabled: false                # فعّلها لو عندك تكاملات HMAC
+      key-id-header: X-HMAC-Key-Id
+      timestamp-header: X-HMAC-Timestamp
+      nonce-header: X-HMAC-Nonce
+      signature-header: X-HMAC-Signature
+      accepted-algorithms: ["HmacSHA256"]
+      max-body-bytes: 1000000
+      clock-skew: 1m
+      ttl: 10m
+      nonce-cache-size: 500000
+      enforce-body-sha256: false
+      # order: 125                  # (اختياري) ترتيب الفلتر
+
+    # -------------------------------------------
+    # Security: OIDC (Nimbus)
+    # -------------------------------------------
+    oidc:
+      enabled: false                # فعّلها لو عندك مزوّد OIDC
+      issuer: https://login.example.com/realms/veggie
+      # jwks-uri: https://login.example.com/realms/veggie/protocol/openid-connect/certs  # اختياري
+      allowed-algs: ["RS256"]
+      audience: ["veggieshop-api"]  # اتركها فارغة لتجاوز فحص Audience
+      public-paths: ["/health/**","/actuator/**","/docs/**"]
+      clock-skew: 2m
+      jwks-connect-timeout: 2s
+      jwks-read-timeout: 3s
+      jwks-size-limit-bytes: 50000
+      # order: 140
+
+    # -------------------------------------------
+    # Security: Step-Up (MFA elevation)
+    # -------------------------------------------
+    step-up:
+      enabled: false                # يتطلب وجود StepUpService في التطبيق
+      default-max-age: 5m
+      mfa-amr-hints: ["mfa","otp","totp","webauthn","hwk","sms"]
+      allow-hmac-principals: false
+      # order: 1000                 # افتراضيًا يستخدم ORDER داخل StepUpInterceptor

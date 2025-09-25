@@ -1,0 +1,38 @@
+veggieshop:
+  kafka:
+    client-id: veggieshop
+    acks: all
+    error:
+      quarantine-suffix: ".quarantine"
+      max-retries: 3
+      initial-interval-ms: 250
+      multiplier: 2.0
+      max-interval-ms: 5000
+      jitter-fraction: 0.2
+      commit-recovered: true
+  publisher:
+    max-attempts: 3
+    initial-backoff: 250ms
+    backoff-multiplier: 2.0
+    max-backoff: 5s
+    jitter-ratio: 0.2
+    send-timeout: 10s
+  outbox:
+    table: platform_outbox
+    batch-size: 200
+    parallelism: 8
+    max-attempts: 20
+    backoff-base: 1s
+    backoff-max: 5m
+    scheduler:
+      enabled: true
+      interval: 250ms
+      initial-delay: 1s
+      burst-batches: 3
+      max-burst-duration: 2s
+      idle-sleep: 1s
+  dedupe:
+    ttl: PT168H           # 7d
+    min-accepted-version: 0
+    replay-window: PT240H # 10d
+    max-future-skew: PT5M

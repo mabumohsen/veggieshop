@@ -1,0 +1,3 @@
+io.veggieshop.platform.starter.messaging.autoconfig.KafkaDefaultsConfiguration
+io.veggieshop.platform.starter.messaging.autoconfig.VeggieShopMessagingAutoConfiguration
+io.veggieshop.platform.starter.messaging.autoconfig.OutboxSchedulerConfiguration

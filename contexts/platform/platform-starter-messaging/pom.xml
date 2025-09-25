@@ -1,0 +1,50 @@
+<!--
+  Platform Messaging Starter
+  - Kafka safe defaults (idempotent producer, read_committed consumers)
+  - Outbox publisher, dedupe, DLQ/Quarantine autoconfig import
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.veggieshop</groupId>
+        <artifactId>parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../../pom-bom/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>platform-starter-messaging</artifactId>
+    <name>VeggieShop :: Context :: Platform :: Starter :: Messaging</name>
+    <description>Kafka defaults + Outbox/ReliablePublisher autoconfig</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- Spring Kafka -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <!-- Platform messaging layer: ReliablePublisher, ConsumerErrorHandler, Headers -->
+        <dependency>
+            <groupId>io.veggieshop</groupId>
+            <artifactId>platform-api-messaging</artifactId>
+        </dependency>
+
+        <!-- Boot autoconfigure base -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <!-- Optional: metadata for configuration properties -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+</project>

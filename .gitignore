@@ -1,0 +1,130 @@
+# ======================= Core / Maven =======================
+# Maven output
+target/
+**/target/
+
+# Maven wrapper local cache artifacts (keep wrapper files themselves)
+.mvn/wrapper/maven-wrapper.jar
+
+# Maven plugin artifacts
+**/.flattened-pom.xml
+**/dependency-reduced-pom.xml
+
+# Build reports & sites
+**/surefire-reports/
+**/failsafe-reports/
+**/jacoco.exec
+**/jacoco/*.exec
+**/site/
+
+# IDEs & Editors
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# NetBeans
+.nb-gradle/
+nbproject/
+
+# OS junk
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+*.swp
+*.swo
+
+# Logs & runtime files
+logs/
+*.log
+*.hprof
+*.jfr
+spring.log
+nohup.out
+*.pid
+*.seed
+
+# Temp & caches
+tmp/
+temp/
+**/.cache/
+.cache/
+dist/
+build/
+bin/
+.gen/
+.generated/
+generated/
+**/generated-sources/
+
+# ======================= Java / Spring =======================
+# Local application config/secrets (keep examples)
+*.env
+*.env.*
+!.env.example
+!.env.*.example
+*.keystore
+*.p12
+*.jks
+*.pem
+*.crt
+*.key
+
+# Spring Boot devtools / working files (if any)
+.spring/
+# Liquibase/Flyway temp (if you generate sql in target)
+**/db/changelog/*-diff.sql
+
+# ======================= Testing & Quality =======================
+# Coverage & analysis
+.coverage/
+coverage/
+**/coverage/
+**/cobertura.ser
+**/clover.xml
+**/test-output/
+**/test-results/
+**/reports/
+.checkstyle/
+checkstyle-result.xml
+pmd.xml
+findbugs.xml
+spotbugsXml.xml
+
+# ======================= Docker / K8s (optional) =======================
+# Uncomment if you generate these locally
+#docker-compose.override.yml
+#*.local.yml
+
+# ======================= Frontend (optional mono-repo bits) =======================
+# Uncomment if you have a frontend in the repo
+#node_modules/
+#npm-debug.log*
+#yarn-error.log*
+#pnpm-lock.yaml
+#package-lock.json
+#yarn.lock
+#build/
+#dist/
+
+# ======================= Misc =======================
+# Local tooling
+*.local
+*.bak
+*.orig
+*.rej
+
+# JetBrains Fleet
+.fleet/
+
+# IntelliJ shared indexes (huge)
+**/.ijwb/

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VeggieShop :: Platform API :: HTTP (Enterprise-grade)
+  - Lightweight HTTP library (filters/interceptors/advice) without heavy starters
+  - No executable packaging (no spring-boot-maven-plugin)
+  - Use spring-boot-autoconfigure + spring-webmvc; servlet/validation APIs are provided
+  - Provide configuration metadata via configuration-processor (optional)
+  - Stable Automatic-Module-Name for JPMS consumers
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.veggieshop</groupId>
+        <artifactId>parent</artifactId>
+        <version>${revision}</version>
+        <relativePath>../../../pom-bom/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>platform-api-http</artifactId>
+    <name>VeggieShop :: Platform API :: HTTP</name>
+    <description>Filters, interceptors, and advisors for HTTP layer (Tenant/Consistency/Idempotency/Problem+JSON)</description>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.veggieshop</groupId>
+            <artifactId>platform-domain</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.veggieshop</groupId>
+            <artifactId>problem-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.veggieshop</groupId>
+            <artifactId>platform-application</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Core Spring Boot auto-config (brings context, no heavy web starter) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
+        <!-- MVC primitives: HandlerInterceptor, WebMvcConfigurer, ResponseBodyAdvice, etc. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+
+        <!-- Servlet API for filters; provided by the runtime container -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Bean validation annotations if needed (@Valid, @NotNull, ...); provided at runtime -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Logging API only -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Generate configuration metadata for IDEs; optional to avoid transitive leakage -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+
+        <!-- TEST SCOPE: keep unit tests lean; integration tests live in platform-testing -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Library packaging only; no spring-boot-maven-plugin -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <!-- Stable JPMS name for downstream consumers -->
+                            <Automatic-Module-Name>io.veggieshop.platform.http</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- Notes:
+         - Any web server/container specifics (Tomcat + virtual threads) belong to platform-starter-web.
+         - Controllers are intentionally out of scope here; this module provides cross-cutting HTTP concerns only.
+         - Idempotency/Consistency headers constants should live here or in domain constants and be reused.
+    -->
+</project>

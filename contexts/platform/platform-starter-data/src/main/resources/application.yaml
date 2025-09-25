@@ -1,0 +1,11 @@
+veggieshop:
+  pii:
+    vault:
+      active-kid: k1
+      master-keys:
+        k1: "c29tZS1iYXNlNjQtMzJieXRlcy1rZXkAAAAAAAAAAA==" # Base64 لمفتاح 32 بايت
+      default-ttl: 365d
+      max-payload-bytes: 16384
+      salt-bytes: 16
+      iv-bytes: 12
+      fail-if-missing-key: true

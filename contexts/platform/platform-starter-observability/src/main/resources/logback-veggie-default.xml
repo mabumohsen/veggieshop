@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VeggieShop :: Platform :: Observability
+  JSON logging configuration aligned with PRD v2.0:
+    - Structured logs (console) with Async appender
+    - No PII in logs (runtime guard installed by LogJsonConfig via TurboFilter)
+    - MDC keys: traceId, spanId, tenantId, requestId (+ piiFlag diagnostic)
+    - OTel-friendly fields and service metadata
+
+  Requirements:
+    - Dependency: net.logstash.logback:logstash-logback-encoder
+-->
+
+<configuration scan="false">
+
+    <!-- Resolve Spring properties (safe defaults if missing) -->
+    <springProperty scope="context" name="appName"       source="spring.application.name" defaultValue="veggieshop"/>
+    <springProperty scope="context" name="env"           source="spring.profiles.active"  defaultValue="default"/>
+    <springProperty scope="context" name="buildVersion"  source="build.version"           defaultValue="0.0.0"/>
+    <!-- Optional: respect context properties set by LogJsonConfig (if present) -->
+    <property name="LOG_CHARSET" value="${LOG_JSON_CHARSET:-UTF-8}"/>
+
+    <!-- Context name is helpful in multi-service aggregations -->
+    <contextName>${appName}-${env}</contextName>
+
+    <!-- ===========================
+         Console JSON Appender
+         =========================== -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+
+                <!-- Timestamp in RFC-3339 / ISO-8601 with UTC -->
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                </timestamp>
+
+                <!-- Level, Logger, Thread -->
+                <logLevel/>
+                <loggerName>
+                    <shortenedLoggerNameLength>72</shortenedLoggerNameLength>
+                </loggerName>
+                <threadName/>
+
+                <!-- Message & Arguments (arguments flattened when used with slf4j parameterized logs) -->
+                <message/>
+                <arguments/>
+
+                <!-- MDC: include only the allow-listed keys -->
+                <mdc>
+                    <includeMdcKeyName>traceId</includeMdcKeyName>
+                    <includeMdcKeyName>spanId</includeMdcKeyName>
+                    <includeMdcKeyName>tenantId</includeMdcKeyName>
+                    <includeMdcKeyName>requestId</includeMdcKeyName>
+                    <!-- PII guard may set this flag to aid diagnostics -->
+                    <includeMdcKeyName>piiFlag</includeMdcKeyName>
+                </mdc>
+
+                <!-- Markers (optional) -->
+                <marker/>
+
+                <!-- Exception stacktrace (shortened class names) -->
+                <stackTrace>
+                    <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                        <maxDepthPerThrowable>30</maxDepthPerThrowable>
+                        <maxLength>8192</maxLength>
+                        <rootCauseFirst>true</rootCauseFirst>
+                        <shortenedClassNameLength>36</shortenedClassNameLength>
+                    </throwableConverter>
+                </stackTrace>
+
+                <!-- Constant service metadata (enriches every log) -->
+                <globalCustomFields>
+                    {
+                    "service": {
+                    "name":      "${appName}",
+                    "namespace": "veggieshop",
+                    "version":   "${buildVersion}"
+                    },
+                    "deployment": {
+                    "environment": "${env}"
+                    }
+                    }
+                </globalCustomFields>
+
+            </providers>
+            <charset>${LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <!-- ===========================
+         Async wrapper
+         =========================== -->
+    <appender name="ASYNC_JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="JSON_CONSOLE"/>
+        <queueSize>8192</queueSize>
+        <!-- do not drop logs under backpressure; keep small to surface issues early -->
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>false</includeCallerData>
+        <neverBlock>false</neverBlock>
+    </appender>
+
+    <!-- ===========================
+         Logger levels (sane defaults)
+         =========================== -->
+    <!-- Platform packages: info by default -->
+    <logger name="io.veggieshop" level="INFO"/>
+
+    <!-- Spring noise reduction -->
+    <logger name="org.springframework"         level="WARN"/>
+    <logger name="org.springframework.web"     level="INFO"/>
+    <logger name="org.springframework.boot.actuate" level="WARN"/>
+
+    <!-- Hibernate/JPA -->
+    <logger name="org.hibernate.SQL"           level="WARN"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="WARN"/>
+
+    <!-- Kafka client -->
+    <logger name="org.apache.kafka"            level="WARN"/>
+
+    <!-- OpenTelemetry internal logs -->
+    <logger name="io.opentelemetry"            level="WARN"/>
+
+    <!-- ===========================
+         Root logger
+         =========================== -->
+    <root level="${ROOT_LOG_LEVEL:-INFO}">
+        <appender-ref ref="ASYNC_JSON"/>
+    </root>
+
+    <!--
+      Notes:
+      - Runtime PII guard (deny or mask) is installed by LogJsonConfig as a TurboFilter; nothing
+        extra is required here.
+      - To switch specific packages to DEBUG in an environment, use Spring's logging.* properties,
+        e.g., logging.level.io.veggieshop=DEBUG
+    -->
+</configuration>
