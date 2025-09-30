@@ -17,7 +17,7 @@
     </parent>
 
     <artifactId>platform-starter-messaging</artifactId>
-    <name>VeggieShop :: Context :: Platform :: Starter :: Messaging</name>
+    <name>VeggieShop :: Platform :: Starter :: Messaging</name>
     <description>Kafka defaults + Outbox/ReliablePublisher autoconfig</description>
     <packaging>jar</packaging>
 
@@ -45,6 +45,23 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

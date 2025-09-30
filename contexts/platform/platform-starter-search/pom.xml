@@ -1,16 +1,27 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Platform Search Starter
+  - Provides autoconfiguration for OpenSearch client integration
+  - Includes Hikari/JDBC-based adapter for VeggieShop services
+  - Safe to include in platform services needing search
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- Parent aggregator should define Spring Boot version & pluginManagement -->
     <parent>
         <groupId>io.veggieshop</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>${revision}</version>
         <relativePath>../../../pom-bom/pom.xml</relativePath>
     </parent>
 
     <artifactId>platform-starter-search</artifactId>
+    <name>VeggieShop :: Platform :: Starter :: Search</name>
+    <description>AutoConfiguration + OpenSearch client integration</description>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -19,42 +30,51 @@
     </properties>
 
     <dependencies>
-        <!-- لكتابة AutoConfiguration و @ConditionalOn* -->
+        <!-- Spring Boot autoconfigure base (for @AutoConfiguration / @ConditionalOn*) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
         </dependency>
 
-        <!-- لمعالجة @ConfigurationProperties (اختياري runtime، مفيد للـmetadata) -->
+        <!-- Optional: metadata for @ConfigurationProperties -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- عميل OpenSearch الحديث (high-level) -->
+        <!-- OpenSearch modern high-level Java client -->
         <dependency>
             <groupId>org.opensearch.client</groupId>
             <artifactId>opensearch-java</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- الـLow-level RestClient الذي يستعمله RestClientTransport -->
         <dependency>
             <groupId>org.opensearch.client</groupId>
             <artifactId>opensearch-rest-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- SLF4J API (لـ Logger/LoggerFactory). إن كان parent يضيف logging فغالباً هذا غير ضروري، لكن إضافته آمن) -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <!-- @Nullable من Jakarta (لو IDE ما جلبتها ترانزيتيفياً) -->
+        <!-- Jakarta @Nullable annotations -->
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
     </dependencies>
-
 </project>

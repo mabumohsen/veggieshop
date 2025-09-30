@@ -91,21 +91,21 @@
         <module>pom-bom</module>
         <module>internal-bom</module>
 
-        <!-- Platform context (shared libraries, starters, testkits) -->
+        <!-- Platform context (shared libraries, testkits) -->
         <module>contexts/platform/platform-domain</module>
-        <module>contexts/platform/platform-starter-data</module>
-        <module>contexts/platform/platform-starter-messaging</module>
-        <module>contexts/platform/platform-starter-web</module>
         <module>contexts/platform/platform-application</module>
         <module>contexts/platform/platform-api-http</module>
         <module>contexts/platform/platform-api-messaging</module>
         <module>contexts/platform/platform-infrastructure</module>
-        <module>contexts/platform/platform-starter-observability</module>
+        <module>contexts/platform/problem-core</module>
 
         <!-- Starters (autoconfig bundles) -->
-<!--        <module>contexts/platform/platform-starter-web</module>-->
-<!--        <module>contexts/platform/platform-starter-messaging</module>-->
-<!--        <module>contexts/platform/platform-starter-data</module>-->
+        <module>contexts/platform/platform-starter-web</module>
+        <module>contexts/platform/platform-starter-messaging</module>
+        <module>contexts/platform/platform-starter-data</module>
+        <module>contexts/platform/platform-starter-observability</module>
+        <module>contexts/platform/platform-starter-search</module>
+        <module>contexts/platform/platform-starter-application</module>
 
         <!-- Quality toolkits -->
 <!--        <module>contexts/platform/platform-testing</module>-->

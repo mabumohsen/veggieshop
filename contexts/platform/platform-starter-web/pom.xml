@@ -19,7 +19,7 @@
     </parent>
 
     <artifactId>platform-starter-web</artifactId>
-    <name>VeggieShop :: Context :: Platform :: Starter :: Web</name>
+    <name>VeggieShop :: Platform :: Starter :: Web</name>
     <description>Servlet+VirtualThreads, Problem+JSON, Observability</description>
     <packaging>jar</packaging>
 

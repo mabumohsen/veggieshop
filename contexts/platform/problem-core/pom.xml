@@ -1,29 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  VeggieShop :: Problem Core (Enterprise-grade)
+  - Minimal shared problem/exception primitives (RFC7807-friendly)
+  - Keep transitive footprint tiny; rely on parent BOM for versions
+  - No framework hard deps; tests are lightweight
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>io.veggieshop</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>${revision}</version>
         <relativePath>../../../pom-bom/pom.xml</relativePath>
     </parent>
 
+    <artifactId>problem-core</artifactId>
+    <packaging>jar</packaging>
+    <name>VeggieShop :: Problem Core</name>
+    <description>Core problem and error primitives shared across VeggieShop services.</description>
+    <url>https://github.com/abuRizq/veggieshop-platform</url>
+
     <dependencies>
+        <!-- Internal domain types reused by problem-core -->
         <dependency>
             <groupId>io.veggieshop</groupId>
             <artifactId>platform-domain</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-annotations</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Test scope: lightweight and framework-free -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
-    <artifactId>problem-core</artifactId>
+    <build>
+        <plugins>
+            <!-- Stable JPMS module name for consumers -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>io.veggieshop.problem.core</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
 
-    <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
+            <!-- Inherit surefire/jacoco/spotless/checkstyle/enforcer from parent -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

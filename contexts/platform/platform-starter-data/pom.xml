@@ -17,7 +17,7 @@
     </parent>
 
     <artifactId>platform-starter-data</artifactId>
-    <name>VeggieShop :: Context :: Platform :: Starter :: Data</name>
+    <name>VeggieShop :: Platform :: Starter :: Data</name>
     <description>JPA/Flyway defaults, timeouts and DB parallelism guards</description>
     <packaging>jar</packaging>
 

@@ -1,137 +1,170 @@
 package io.veggieshop.platform.starter.consistency.web.autoconfig;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * خصائص ربط طبقة الويب للاتساق (Consistency).
+ * Web-layer consistency properties.
  *
- * المفاتيح الرئيسية:
- *   veggieshop.web.consistency.enabled=true
+ * <p>Master toggle:
  *
- * قابلة للتخصيص لكل مكوّن:
- *   veggieshop.web.consistency.precondition.enabled=true
- *   veggieshop.web.consistency.precondition.include-path-patterns[0]=/api/**    # أنماط Ant
- *   veggieshop.web.consistency.precondition.exclude-path-patterns[0]=/actuator/**
+ * <pre>
+ * veggieshop.web.consistency.enabled=true
+ * </pre>
  *
- *   veggieshop.web.consistency.headers.enabled=true
- *   veggieshop.web.consistency.headers.include-path-patterns[0]=/api/**
- *   veggieshop.web.consistency.headers.exclude-path-patterns[0]=/actuator/**
+ * <p>Precondition interceptor:
  *
- *   veggieshop.web.consistency.etag.enabled=true
+ * <pre>
+ * veggieshop.web.consistency.precondition.enabled=true
+ * veggieshop.web.consistency.precondition.include-path-patterns[0]=/api/**
+ * veggieshop.web.consistency.precondition.exclude-path-patterns[0]=/actuator/**
+ * </pre>
+ *
+ * <p>Headers interceptor:
+ *
+ * <pre>
+ * veggieshop.web.consistency.headers.enabled=true
+ * veggieshop.web.consistency.headers.include-path-patterns[0]=/api/**
+ * veggieshop.web.consistency.headers.exclude-path-patterns[0]=/actuator/**
+ * </pre>
+ *
+ * <p>ETag advice:
+ *
+ * <pre>
+ * veggieshop.web.consistency.etag.enabled=true
+ * </pre>
  */
 @Validated
 @ConfigurationProperties(prefix = "veggieshop.web.consistency")
 public class ConsistencyWebProperties {
 
-    /**
-     * تمكين/تعطيل ربط الاتساق في طبقة الويب بالكامل.
-     */
-    private boolean enabled = true;
+  /** Master toggle for all web consistency features. */
+  private boolean enabled = true;
 
-    /**
-     * خصائص Interceptor الذي يعالج preconditions (If-Consistent-With / If-Match).
-     */
-    private final Section precondition = new Section(true);
+  /** Precondition interceptor (If-Consistent-With / If-Match). */
+  private final Section precondition = new Section(true);
 
-    /**
-     * خصائص Interceptor الذي يضيف Vary و X-Consistency-Token.
-     */
-    private final Section headers = new Section(true);
+  /** Headers interceptor (Vary + X-Consistency-Token). */
+  private final Section headers = new Section(true);
 
-    /**
-     * خصائص ResponseBodyAdvice الذي يضيف ETag تلقائياً.
-     */
-    private final EtagSection etag = new EtagSection(true);
+  /** ETag response advice. */
+  private final EtagSection etag = new EtagSection(true);
 
-    // ------------------------------------------------------------------------------------------------
-    // Nested types
-    // ------------------------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------------------
+  // Nested types
+  // ---------------------------------------------------------------------------------------------
 
-    public static class Section {
-        private boolean enabled;
-        private List<String> includePathPatterns = new ArrayList<>();
-        private List<String> excludePathPatterns = defaultExcludes();
+  /**
+   * A section of path-based configuration for interceptors. Provides defensive copies to avoid
+   * exposing internal state.
+   */
+  public static class Section {
+    private boolean enabled;
+    private List<String> includePathPatterns = new ArrayList<>();
+    private List<String> excludePathPatterns = defaultExcludes();
 
-        public Section(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        public List<String> getIncludePathPatterns() {
-            return includePathPatterns;
-        }
-        public void setIncludePathPatterns(List<String> includePathPatterns) {
-            this.includePathPatterns = (includePathPatterns == null) ? new ArrayList<>() : includePathPatterns;
-        }
-
-        public List<String> getExcludePathPatterns() {
-            return excludePathPatterns;
-        }
-        public void setExcludePathPatterns(List<String> excludePathPatterns) {
-            this.excludePathPatterns = (excludePathPatterns == null) ? new ArrayList<>() : excludePathPatterns;
-        }
+    public Section(boolean enabled) {
+      this.enabled = enabled;
     }
 
-    public static class EtagSection {
-        private boolean enabled;
-
-        public EtagSection(boolean enabled) {
-            this.enabled = enabled;
-        }
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
+    /** Defensive copy constructor. */
+    public Section(Section other) {
+      this.enabled = other.enabled;
+      this.includePathPatterns = new ArrayList<>(other.includePathPatterns);
+      this.excludePathPatterns = new ArrayList<>(other.excludePathPatterns);
     }
-
-    // ------------------------------------------------------------------------------------------------
-    // Defaults
-    // ------------------------------------------------------------------------------------------------
-
-    private static List<String> defaultExcludes() {
-        List<String> list = new ArrayList<>();
-        list.add("/error");
-        list.add("/favicon.ico");
-        // عادة لا نريد تفعيل المنطق على الـ actuator/static (يمكن تعديلها من الخصائص)
-        list.add("/actuator/**");
-        list.add("/assets/**");
-        list.add("/static/**");
-        return list;
-    }
-
-    // ------------------------------------------------------------------------------------------------
-    // Getters / Setters
-    // ------------------------------------------------------------------------------------------------
 
     public boolean isEnabled() {
-        return enabled;
+      return enabled;
     }
+
     public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+      this.enabled = enabled;
     }
 
-    public Section getPrecondition() {
-        return precondition;
+    public List<String> getIncludePathPatterns() {
+      return Collections.unmodifiableList(includePathPatterns);
     }
 
-    public Section getHeaders() {
-        return headers;
+    public void setIncludePathPatterns(List<String> includePathPatterns) {
+      this.includePathPatterns =
+          (includePathPatterns == null) ? new ArrayList<>() : new ArrayList<>(includePathPatterns);
     }
 
-    public EtagSection getEtag() {
-        return etag;
+    public List<String> getExcludePathPatterns() {
+      return Collections.unmodifiableList(excludePathPatterns);
     }
+
+    public void setExcludePathPatterns(List<String> excludePathPatterns) {
+      this.excludePathPatterns =
+          (excludePathPatterns == null) ? new ArrayList<>() : new ArrayList<>(excludePathPatterns);
+    }
+  }
+
+  /** Toggle for ETag response advice. Provides a defensive copy constructor. */
+  public static class EtagSection {
+    private boolean enabled;
+
+    public EtagSection(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    /** Defensive copy constructor. */
+    public EtagSection(EtagSection other) {
+      this.enabled = other.enabled;
+    }
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Defaults
+  // ---------------------------------------------------------------------------------------------
+
+  private static List<String> defaultExcludes() {
+    List<String> list = new ArrayList<>();
+    list.add("/error");
+    list.add("/favicon.ico");
+    // Typically skip actuator/static assets by default (can be overridden).
+    list.add("/actuator/**");
+    list.add("/assets/**");
+    list.add("/static/**");
+    return list;
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Getters / Setters
+  // ---------------------------------------------------------------------------------------------
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
+
+  /** Returns a defensive copy to avoid exposing internal state. */
+  public Section getPrecondition() {
+    return new Section(precondition);
+  }
+
+  /** Returns a defensive copy to avoid exposing internal state. */
+  public Section getHeaders() {
+    return new Section(headers);
+  }
+
+  /** Returns a defensive copy to avoid exposing internal state. */
+  public EtagSection getEtag() {
+    return new EtagSection(etag);
+  }
 }

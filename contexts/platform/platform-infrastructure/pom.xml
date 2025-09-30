@@ -1,10 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  VeggieShop :: Platform Infrastructure (Enterprise-grade)
-  - Spring Data JPA + JDBC + Flyway migrations + OpenSearch + PII Vault adapter
-  - Library JAR (no executable); avoid pulling a logging binding
-  - Packaged resources include db/migration/* for Flyway
--->
+<!-- VeggieShop :: Platform Infrastructure (Enterprise-grade) -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -24,7 +19,7 @@
     <url>https://github.com/abuRizq/veggieshop-platform</url>
 
     <dependencies>
-        <!-- ===== Spring / JPA / JDBC (exclude logging binding to keep library slim) ===== -->
+        <!-- ===== Spring / JPA / JDBC (بدون binding للّوجينغ) ===== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -37,10 +32,6 @@
         </dependency>
 
         <dependency>
-            <groupId>io.veggieshop</groupId>
-            <artifactId>platform-application</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <exclusions>
@@ -51,53 +42,66 @@
             </exclusions>
         </dependency>
 
-        <!-- Bean Validation API (used by entities/value objects) -->
+        <!-- طبقة التطبيق الداخلية -->
+        <dependency>
+            <groupId>io.veggieshop</groupId>
+            <artifactId>platform-application</artifactId>
+        </dependency>
+
+        <!-- Bean Validation API -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- Flyway core: consuming apps run migrations at startup -->
+        <!-- Flyway -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
 
-        <!-- PostgreSQL driver (runtime in apps; test scope here to avoid forcing it on all consumers) -->
+        <!-- PostgreSQL driver: runtime فقط -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Jackson (JsonNode in entities/repositories) -->
+        <!-- Jackson -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- Micrometer (optional; PiiVault adapter emits metrics if a registry is present) -->
+        <!-- Micrometer (اختياري) -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
             <optional>true</optional>
         </dependency>
 
-        <!-- OpenSearch official client (Transport + Low-level REST via transitive deps) -->
+        <!-- OpenSearch High Level Client فقط -->
         <dependency>
             <groupId>org.opensearch.client</groupId>
             <artifactId>opensearch-java</artifactId>
+            <exclusions>
+                <!-- منع تضارب commons-logging مع spring-jcl -->
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- Logging API only; binding chosen by applications -->
+        <!-- Logging API فقط؛ الـ binding يضيفه التطبيق المستهلك -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
-        <!-- ===== Compile-time helpers (no runtime leakage) ===== -->
+        <!-- ===== Compile-time helpers ===== -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -111,7 +115,18 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- ===== Test scope (integration-friendly) ===== -->
+        <dependency>
+            <groupId>org.opensearch.client</groupId>
+            <artifactId>opensearch-rest-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- ===== Test ===== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -133,27 +148,11 @@
             <artifactId>elasticsearch</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <!-- OpenSearch low-level REST client: يوفّر org.opensearch.client.RestClient -->
-        <dependency>
-            <groupId>org.opensearch.client</groupId>
-            <artifactId>opensearch-rest-client</artifactId>
-        </dependency>
-
-        <!-- Apache HttpComponents 4.x: يوفّر org.apache.http.* -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Stable JPMS module name for consumers -->
+            <!-- JPMS module name ثابت -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -166,7 +165,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Annotation processor path for configuration metadata (IDE hints) -->
+            <!-- annotation processors فقط وقت الكومبايل -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -186,7 +185,30 @@
                 </configuration>
             </plugin>
 
-            <!-- Inherit surefire/jacoco/spotless/checkstyle/enforcer from parent -->
+            <!-- (اختياري) حاجز إضافي لحظر commons-logging داخل هذا الموديول -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>ban-commons-logging-here</id>
+                        <goals><goal>enforce</goal></goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>commons-logging:commons-logging</exclude>
+                                    </excludes>
+                                    <searchTransitive>true</searchTransitive>
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- يرث surefire/jacoco/spotless/checkstyle/enforcer من الـ parent -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
